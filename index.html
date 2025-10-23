@@ -1,131 +1,439 @@
 
-   <!DOCTYPE html>
-<html lang="ar" dir="rtl"> <!-- غيرت اللغة إلى العربية لتسهيل القراءة -->
+<!doctype html>
+<html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>موقعي الثلاثي الأبعاد</title> <!-- عنوان الموقع -->
-    <style>
-        body { 
-            margin: 0; 
-            font-family: Arial, sans-serif; 
-            background-color: #f0f0f0; /* خلفية رمادية فاتحة */
-        }
-        canvas { 
-            display: block; 
-            border: 2px solid #333; /* إطار حول المشهد */
-        }
-        #info { 
-            position: absolute; 
-            top: 10px; 
-            left: 10px; 
-            background: rgba(255, 255, 255, 0.8); 
-            padding: 10px; 
-            border-radius: 5px; 
-        }
-        button { 
-            margin: 10px; 
-            padding: 10px 20px; 
-            background-color: #4CAF50; 
-            color: white; 
-            border: none; 
-            cursor: pointer; 
-        }
-        button:hover { background-color: #45a049; }
-    </style>
-    
-    <!-- روابط المكتبات الخارجية -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>موقعي - نسخة ملف واحد (Single File)</title>
+
+  <!-- هنا نضع الستايل كله داخل الملف -->
+  <style>
+    :root {
+      --accent: #2aa84f;
+      --bg: #0b0b0b;
+      --card: #141414;
+      --text: #eee;
+      --dir: rtl;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family: "Tahoma","Segoe UI",Arial, sans-serif;direction:var(--dir);background:var(--bg);color:var(--text)}
+    .container{max-width:1100px;margin:0 auto;padding:18px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 0}
+    header h1{margin:0;font-size:18px}
+    nav a{color:var(--text);text-decoration:none;margin-inline:8px;padding:8px;border-radius:8px}
+    nav a.active, nav a:hover{background:var(--accent);color:#fff}
+
+    .layout{display:grid;grid-template-columns:520px 1fr;gap:18px;align-items:start}
+    #canvas-wrap{width:100%;height:420px;background:#000;border-radius:8px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,.6)}
+    .controls{background:var(--card);padding:14px;border-radius:8px}
+    .controls p{margin:0 0 8px 0;color:#ddd}
+    .controls button{background:var(--accent);border:none;color:#fff;padding:10px 12px;border-radius:8px;cursor:pointer;margin-right:8px}
+    .controls button:hover{opacity:.95}
+
+    section.intro{margin-top:18px;padding:14px;background:#111;border-radius:8px}
+    .tabs{display:flex;gap:8px;margin-bottom:12px}
+    .tab{padding:8px 12px;background:#111;border-radius:8px;cursor:pointer}
+    .tab.active{background:var(--accent);color:#fff}
+
+    /* Gallery */
+    .gallery{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+    .thumb{background:#0d0d0d;border-radius:6px;overflow:hidden;display:flex;align-items:center;justify-content:center;height:140px;position:relative}
+    .thumb img, .thumb video{max-width:100%;max-height:100%;display:block}
+    .uploader{margin-top:12px;display:flex;gap:8px;align-items:center}
+    .uploader input[type=file]{display:block}
+
+    /* Contact */
+    form label{display:block;margin-bottom:8px}
+    input,textarea{width:100%;padding:8px;margin-top:6px;border-radius:6px;border:1px solid #333;background:#0f0f0f;color:#fff}
+    button[type="submit"]{background:var(--accent);color:white;border-radius:8px;border:none;padding:10px 16px;cursor:pointer}
+
+    footer{margin-top:24px;padding:16px;text-align:center;color:#999}
+
+    /* Responsive */
+    @media (max-width:900px){
+      .layout{grid-template-columns:1fr; padding-bottom:30px}
+      #canvas-wrap{height:360px}
+    }
+
+    /* small helpers */
+    .muted{color:#aaa;font-size:13px}
+    .row{display:flex;gap:8px;align-items:center}
+    .pill{display:inline-block;padding:6px 10px;background:#0d0d0d;border-radius:999px;color:#ddd;font-size:13px}
+  </style>
 </head>
 <body>
-    <!-- عناصر HTML لجعل الموقع يبدو عاديًا -->
-    <div id="info">
-        <h1>مرحبًا بك في موقعي الثلاثي الأبعاد!</h1>
-        <p>انقر على المكعب لتغيير لونه. استخدم الفأرة لتدوير الكاميرا.</p>
-        <button onclick="changeColor()">غير لون الكرة</button>
-        <button onclick="resetCamera()">أعد الكاميرا</button>
-    </div>
+  <div class="container">
+    <header>
+      <div>
+        <h1>موقع تجريبي (ملف واحد)</h1>
+        <div class="muted">نسخة تجريبية تحتوي على 3D + معرض وسائط يعمل محليًا</div>
+      </div>
+      <nav>
+        <a href="#" class="active" id="nav-home">الرئيسية</a>
+        <a href="#" id="nav-gallery">المعرض</a>
+        <a href="#" id="nav-contact">تواصل</a>
+      </nav>
+    </header>
 
-    <!-- الكود الرئيسي للمشهد الثلاثي الأبعاد -->
-    <script>
-        // إنشاء المشهد
-        const scene = new THREE.Scene();
+    <!-- الصفحة: الرئيسية -->
+    <main id="page-home" class="page">
+      <div class="layout">
+        <!-- عمود اليمين: كانفاس Three.js -->
+        <div>
+          <div id="canvas-wrap" aria-label="3D canvas"></div>
+          <div style="height:8px"></div>
+          <div class="controls">
+            <p>انقر على المجسمات لتغيير اللون. اسحب لتدوير الكاميرا. استخدم الأزرار للتحكم.</p>
+            <div class="row">
+              <button id="btn-color">غيّر لون الكرة</button>
+              <button id="btn-reset">أعد الكاميرا</button>
+              <div class="pill" id="camera-status">كاميرا: جاهزة</div>
+            </div>
+          </div>
+        </div>
 
-        // إنشاء الكاميرا
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
+        <!-- عمود الشمال: نبذة وسرعة عرض -->
+        <aside class="controls">
+          <h3>عن المشروع</h3>
+          <p class="muted">هذا ملف HTML واحد يحتوي على كل شيء. تقدر ترفع صور وفيديو من جهازك وتعرضهم في المعرض دون رفع للسيرفر.</p>
 
-        // إنشاء المُعالج
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
+          <div style="margin-top:12px">
+            <div class="tabs">
+              <div class="tab active" data-show="desc">وصف</div>
+              <div class="tab" data-show="how">كيفية الاستخدام</div>
+            </div>
+            <div id="desc">
+              <ul style="padding-left:18px;margin:0;color:#ddd">
+                <li>مشهد Three.js: كرة و مكعب متحرك.</li>
+                <li>عرض صور/فيديو محلياً عبر اختيار الملفات.</li>
+                <li>فورم تواصل يحفظ مؤقتاً في الجلسة (local state).</li>
+              </ul>
+            </div>
+            <div id="how" style="display:none">
+              <ol style="padding-left:18px;margin:0;color:#ddd">
+                <li>اضغط Gallery → اختر ملفات (صور أو فيديو) → ستظهر كـ thumbs.</li>
+                <li>انقر على أي thumb لفتح معاينة كبيرة (فتح تبويب جديد للـ video/local URL).</li>
+                <li>افتح الملف كموقع محلي: افتح index.html في المتصفح.</li>
+              </ol>
+            </div>
+          </div>
+        </aside>
+      </div>
 
-        // إضافة الإضاءة
-        const light = new THREE.PointLight(0xffffff, 1, 100);
-        light.position.set(10, 10, 10);
-        scene.add(light);
-        const ambientLight = new THREE.AmbientLight(0x404040);
-        scene.add(ambientLight);
+      <section class="intro">
+        <h2>تجربة سريعة</h2>
+        <p class="muted">زرار <strong>غيّر لون الكرة</strong> سيغير لون الكرة عشوائياً. النقر على المكعب/الكرة سيغير لون العنصر الذي نقرت عليه.</p>
+      </section>
+    </main>
 
-        // إنشاء المكعب (مع تغيير الأبعاد)
-        const geometry = new THREE.BoxGeometry(1, 2, 1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
+    <!-- الصفحة: المعرض -->
+    <main id="page-gallery" class="page" style="display:none">
+      <section>
+        <h2>المعرض — صور وفيديو (محلي)</h2>
+        <div class="uploader">
+          <input id="fileInput" type="file" accept="image/*,video/*" multiple>
+          <button id="clearGallery" class="tab">إفراغ المعرض</button>
+          <div style="flex:1" class="muted">يمكنك اختيار أكثر من ملف، سيتم عرضهم هنا فوراً.</div>
+        </div>
 
-        // إضافة كرة
-        const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
-        const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
-        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        sphere.position.x = 3;
-        scene.add(sphere);
+        <div style="margin-top:12px" id="galleryGrid" class="gallery">
+          <!-- الصور والفيديوهات تظهر هنا -->
+        </div>
 
-        // إضافة تحكمات الكاميرا
-        const controls = new THREE.OrbitControls(camera, renderer.domElement);
-        controls.enableDamping = true;
-        controls.dampingFactor = 0.05;
+        <p class="muted" style="margin-top:12px">ملاحظة: الملفات لا تُرفع للسيرفر — كل شيء في المتصفح فقط. لو نزلت الصفحة ستختفي المعروضات.</p>
+      </section>
+    </main>
 
-        // إضافة تفاعل النقر على المكعب
-        window.addEventListener('click', function() {
-            cube.material.color.set(Math.random() * 0xffffff);
-        });
+    <!-- الصفحة: تواصل -->
+    <main id="page-contact" class="page" style="display:none">
+      <section>
+        <h2>تواصل معنا (تجريبي)</h2>
+        <form id="contactForm">
+          <label>الاسم
+            <input type="text" id="name" required>
+          </label>
+          <label>البريد الإلكتروني
+            <input type="email" id="email" required>
+          </label>
+          <label>الرسالة
+            <textarea id="message" rows="5" required></textarea>
+          </label>
+          <button type="submit">إرسال (محلي)</button>
+        </form>
+        <p id="formMsg" class="muted" style="margin-top:10px"></p>
 
-        // استخدام fetch لتحميل البيانات
-        fetch('data.json')
-            .then(response => response.json())
-            .then(data => {
-                console.log(data);
-                if (data.color) {
-                    cube.material.color.set(data.color);
-                }
-                if (data.position) {
-                    cube.position.set(...data.position);
-                }
-            })
-            .catch(error => console.error('خطأ في تحميل البيانات:', error));
+        <h3 style="margin-top:18px">الرسائل المرسلة هذه الجلسة</h3>
+        <div id="sentList" class="muted"></div>
+      </section>
+    </main>
 
-        // دوال إضافية للأزرار
-        function changeColor() {
-            sphere.material.color.set(Math.random() * 0xffffff);
-        }
-        function resetCamera() {
-            camera.position.set(0, 0, 5);
-            controls.reset();
-        }
+    <footer>
+      © كل الحقوق محفوظة — ملف واحد فقط لتجربة سريعة
+    </footer>
+  </div>
 
-        // حلقة الرسوم المتحركة
-        function animate() {
-            requestAnimationFrame(animate);
-            cube.rotation.x += 0.01;
-            cube.rotation.y += 0.01;
-            sphere.rotation.x += 0.02;
-            sphere.rotation.y += 0.02;
-            controls.update();
-            renderer.render(scene, camera);
-        }
-        animate();
-    </script>
+  <!-- نحمّل Three.js من CDN داخل نفس الملف (مسموح) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+
+  <!-- كود الجافاسكربت الكامل داخل الملف -->
+  <script>
+  /*************************************************************************
+   * JavaScript: Three.js scene + Gallery upload (client-side) + Contact
+   *************************************************************************/
+
+  // ---------- تنقّل بين الصفحات ----------
+  const navHome = document.getElementById('nav-home');
+  const navGallery = document.getElementById('nav-gallery');
+  const navContact = document.getElementById('nav-contact');
+  const pageHome = document.getElementById('page-home');
+  const pageGallery = document.getElementById('page-gallery');
+  const pageContact = document.getElementById('page-contact');
+  const tabs = document.querySelectorAll('.tab');
+
+  function showPage(page){
+    pageHome.style.display = page === 'home' ? '' : 'none';
+    pageGallery.style.display = page === 'gallery' ? '' : 'none';
+    pageContact.style.display = page === 'contact' ? '' : 'none';
+    navHome.classList.toggle('active', page === 'home');
+    navGallery.classList.toggle('active', page === 'gallery');
+    navContact.classList.toggle('active', page === 'contact');
+    // active tab reset
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  }
+
+  navHome.addEventListener('click', (e)=>{ e.preventDefault(); showPage('home'); });
+  navGallery.addEventListener('click', (e)=>{ e.preventDefault(); showPage('gallery'); });
+  navContact.addEventListener('click', (e)=>{ e.preventDefault(); showPage('contact'); });
+
+  // Tab behavior
+  tabs.forEach(t => t.addEventListener('click', ()=>{
+    const show = t.getAttribute('data-show');
+    document.querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('desc').style.display = show === 'desc' ? '' : 'none';
+    document.getElementById('how').style.display = show === 'how' ? '' : 'none';
+  }));
+
+  // ---------- Three.js setup ----------
+  let scene, camera, renderer, sphere, cube;
+  const initialCameraPos = { x: 0, y: 2, z: 6 };
+  function initThree(){
+    const wrap = document.getElementById('canvas-wrap');
+    // clear any previous canvas
+    wrap.innerHTML = '';
+    const width = wrap.clientWidth || 520;
+    const height = wrap.clientHeight || 420;
+
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, width/height, 0.1, 1000);
+    camera.position.set(initialCameraPos.x, initialCameraPos.y, initialCameraPos.z);
+
+    renderer = new THREE.WebGLRenderer({ antialias:true });
+    renderer.setSize(width, height);
+    renderer.setClearColor(0x000000);
+    wrap.appendChild(renderer.domElement);
+
+    // ضوء
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(5,10,7);
+    scene.add(light);
+    scene.add(new THREE.AmbientLight(0x404040, 0.8));
+
+    // الأرضية البسيطة
+    const ground = new THREE.Mesh(new THREE.PlaneGeometry(20,20), new THREE.MeshStandardMaterial({color:0x0f0f0f}));
+    ground.rotation.x = -Math.PI/2;
+    ground.position.y = -2;
+    scene.add(ground);
+
+    // كرة
+    const sphereGeo = new THREE.SphereGeometry(1.2, 32, 32);
+    const sphereMat = new THREE.MeshStandardMaterial({color:0xff1493, metalness:0.2, roughness:0.4});
+    sphere = new THREE.Mesh(sphereGeo, sphereMat);
+    sphere.position.set(0, -0.8, 0);
+    scene.add(sphere);
+
+    // مكعب
+    const cubeGeo = new THREE.BoxGeometry(1.6,0.8,0.6);
+    const cubeMat = new THREE.MeshStandardMaterial({color:0x8b4513, metalness:0.1, roughness:0.5});
+    cube = new THREE.Mesh(cubeGeo, cubeMat);
+    cube.position.set(0,1.2,0);
+    cube.rotation.set(0.6,0.3,0.2);
+    scene.add(cube);
+
+    // تفاعل بسيط بالسحب على الموبايل/الماوس
+    let isDown=false, startX=0, startY=0;
+    function onDown(e){
+      isDown=true;
+      startX = e.touches ? e.touches[0].clientX : e.clientX;
+      startY = e.touches ? e.touches[0].clientY : e.clientY;
+    }
+    function onMove(e){
+      if(!isDown) return;
+      const x = e.touches ? e.touches[0].clientX : e.clientX;
+      const y = e.touches ? e.touches[0].clientY : e.clientY;
+      const dx = (x - startX) * 0.005;
+      const dy = (y - startY) * 0.005;
+      camera.position.x -= dx;
+      camera.position.y += dy;
+      startX = x; startY = y;
+      document.getElementById('camera-status').textContent = 'كاميرا: تم التدوير';
+    }
+    function onUp(){ isDown=false; }
+
+    renderer.domElement.addEventListener('mousedown', onDown);
+    renderer.domElement.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    renderer.domElement.addEventListener('touchstart', onDown);
+    renderer.domElement.addEventListener('touchmove', onMove);
+    renderer.domElement.addEventListener('touchend', onUp);
+
+    // نستخدم Raycaster للنقر على المجسمات
+    renderer.domElement.addEventListener('click', (ev)=>{
+      const rect = renderer.domElement.getBoundingClientRect();
+      const mouse = new THREE.Vector2(
+        ((ev.clientX - rect.left) / rect.width) * 2 - 1,
+        -((ev.clientY - rect.top) / rect.height) * 2 + 1
+      );
+      const ray = new THREE.Raycaster();
+      ray.setFromCamera(mouse, camera);
+      const intersects = ray.intersectObjects([sphere, cube]);
+      if(intersects.length>0){
+        const obj = intersects[0].object;
+        obj.material.color.setHex(Math.random() * 0xffffff);
+      }
+    });
+
+    window.addEventListener('resize', ()=>{
+      const w = wrap.clientWidth || 520;
+      const h = wrap.clientHeight || 420;
+      renderer.setSize(w,h);
+      camera.aspect = w/h;
+      camera.updateProjectionMatrix();
+    });
+
+    animate();
+  }
+
+  function animate(){
+    requestAnimationFrame(animate);
+    if(sphere) sphere.rotation.y += 0.01;
+    if(cube) { cube.rotation.x += 0.008; cube.rotation.z += 0.006; }
+    if(renderer && scene && camera) renderer.render(scene, camera);
+  }
+
+  // أزرار التحكم
+  document.addEventListener('DOMContentLoaded', ()=>{
+    initThree();
+    document.getElementById('btn-color').addEventListener('click', ()=>{
+      if(sphere) sphere.material.color.setHex(Math.random()*0xffffff);
+    });
+    document.getElementById('btn-reset').addEventListener('click', ()=>{
+      if(camera) camera.position.set(initialCameraPos.x, initialCameraPos.y, initialCameraPos.z);
+      document.getElementById('camera-status').textContent = 'كاميرا: تم الإعادة';
+    });
+  });
+
+  // ---------- Gallery: رفع الصور/الفيديو محليًا وعرضها ----------
+  const fileInput = document.getElementById('fileInput');
+  const galleryGrid = document.getElementById('galleryGrid');
+  const clearGalleryBtn = document.getElementById('clearGallery');
+
+  // نمط بسيط لتخزين ال thumbs داخل الذاكرة (session)
+  let galleryItems = [];
+
+  function createThumb(item){
+    const div = document.createElement('div');
+    div.className = 'thumb';
+    // إذا كان صورة
+    if(item.type.startsWith('image/')){
+      const img = document.createElement('img');
+      img.src = item.url;
+      img.alt = item.name;
+      img.addEventListener('click', ()=> window.open(item.url, '_blank'));
+      div.appendChild(img);
+    } else if(item.type.startsWith('video/')){
+      const vid = document.createElement('video');
+      vid.src = item.url;
+      vid.controls = false;
+      vid.preload = 'metadata';
+      // خاصية التشغيل عند المرور ممكن تضيفها لو حبيت
+      vid.addEventListener('click', ()=> window.open(item.url, '_blank'));
+      div.appendChild(vid);
+    } else {
+      const p = document.createElement('div');
+      p.textContent = item.name;
+      div.appendChild(p);
+    }
+    return div;
+  }
+
+  fileInput.addEventListener('change', async (e)=>{
+    const files = Array.from(e.target.files);
+    for(const f of files){
+      // نقرأ الملف كـ data URL (مباشر في المتصفح)
+      const url = await readFileAsDataURL(f);
+      const item = { name: f.name, type: f.type, url };
+      galleryItems.push(item);
+      const thumb = createThumb(item);
+      galleryGrid.appendChild(thumb);
+    }
+    // تنظيف اختيار الملف
+    fileInput.value = '';
+  });
+
+  clearGalleryBtn.addEventListener('click', ()=>{
+    galleryItems = [];
+    galleryGrid.innerHTML = '';
+  });
+
+  function readFileAsDataURL(file){
+    return new Promise((res, rej)=>{
+      const fr = new FileReader();
+      fr.onload = ()=> res(fr.result);
+      fr.onerror = ()=> rej(new Error('فشل قراءة الملف'));
+      fr.readAsDataURL(file);
+    });
+  }
+
+  // ---------- Contact form (محلي) ----------
+  const contactForm = document.getElementById('contactForm');
+  const formMsg = document.getElementById('formMsg');
+  const sentList = document.getElementById('sentList');
+  let sentMessages = [];
+
+  contactForm.addEventListener('submit', (e)=>{
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const message = document.getElementById('message').value.trim();
+    if(!name || !email || !message){ formMsg.textContent = 'املى كل الحقول'; return; }
+    const item = { name, email, message, time: new Date().toLocaleString() };
+    sentMessages.push(item);
+    renderSent();
+    formMsg.textContent = 'تم الإرسال (محليًا فقط).';
+    contactForm.reset();
+    setTimeout(()=> formMsg.textContent = '', 4000);
+  });
+
+  function renderSent(){
+    if(sentMessages.length === 0){ sentList.innerHTML = '<div class="muted">لا توجد رسائل بعد</div>'; return; }
+    sentList.innerHTML = sentMessages.map(s => `<div style="padding:6px 0;border-bottom:1px solid #111"><strong>${escapeHtml(s.name)}</strong> — <span class="muted">${s.time}</span><div style="margin-top:6px">${escapeHtml(s.message)}</div><div class="muted">${escapeHtml(s.email)}</div></div>`).join('');
+  }
+
+  function escapeHtml(unsafe) {
+    return unsafe.replace(/[&<"']/g, function(m) {
+      return ({'&':'&amp;','<':'&lt;','"':'&quot;',"'":'&#039;'})[m];
+    });
+  }
+
+  // initiate empty sent list
+  renderSent();
+
+  // ---------- Utility: افتح الصفحة الافتراضية على Home ----------
+  showPage('home');
+
+  // ---------- نصائح صغيرة داخل الملف ----------
+  console.log("ملف واحد جاهز. لاضافة وسائط كبيرة استخدم Cloudinary/Firebase/YouTube وربط الروابط بدلاً من رفع ملفات كبيرة هنا.");
+  </script>
 </body>
 </html>
