@@ -1,105 +1,56 @@
-<!DOCTYPE html>
-<html lang="en">
+
+   <!DOCTYPE html>
+<html lang="ar" dir="rtl"> <!-- غيرت اللغة إلى العربية لتسهيل القراءة -->
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Web Example</title>
+    <title>موقعي الثلاثي الأبعاد</title> <!-- عنوان الموقع -->
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
-    </style>
-</head>
-<body>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script>
-        // Create a scene
-        const scene = new THREE.Scene();
-// إضافة ضوء
-const light = new THREE.PointLight(0xffffff, 1, 100);
-light.position.set(10, 10, 10);
-scene.add(light);
-
-// إضافة ضوء محيطي
-const ambientLight = new THREE.AmbientLight(0x404040); // ضوء خافت
-scene.add(ambientLight);
-
-        // Create a camera
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
-
-        // Create a renderer
-        const renderer = new THREE.WebGLRenderer();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        document.body.appendChild(renderer.domElement);
-
-        // Create a geometry and a material, then combine them into a mesh
-        const geometry = new THREE.BoxGeometry(1, 2, 1); // عرض، ارتفاع، عمق
-// تغيير لون المكعب عند النقر
-window.addEventListener('click', function() {
-    cube.material.color.set(Math.random() * 0xffffff); // تغيير اللون إلى لون عشوائي
-});
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-        const cube = new THREE.Mesh(geometry, material);
-        scene.add(cube);
-
-        // Animation loop
-        function animate() {
-            requestAnimationFrame(animate);
-            cube.rotation.x += 0.01; // Rotate around X axis
-            cube.rotation.y += 0.01; // Rotate around Y axis
-            renderer.render(scene, camera);
+        body { 
+            margin: 0; 
+            font-family: Arial, sans-serif; 
+            background-color: #f0f0f0; /* خلفية رمادية فاتحة */
         }
-        animate();
-    </script>// تحميل الخامة من الصورة المرفوعة
-const textureLoader = new THREE.TextureLoader();
-const texture = textureLoader.load('images/your-image.jpg'); // استبدل 'your-image.jpg' باسم الصورة الفعلي
-
-// تطبيق الخامة على المكعب
-cube.material = new THREE.MeshBasicMaterial({ map: texture });
-</body>
-</html>
-cd path/to/3DWebProject
-   const textureLoader = new THREE.TextureLoader();
-   const texture = textureLoader.load('images/your-image.jpg'); // استبدل 'your-image.jpg' باسم الصورة الخاصة بك
-   const material = new THREE.MeshBasicMaterial({ map: texture });
-   const cube = new THREE.Mesh(geometry, material);
-python -m http.server
-// إنشاء كرة
-const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
-const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 }); // لون أحمر
-const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-sphere.position.x = 3; // وضعها بجانب المكعب
-scene.add(sphere);
-
-// إضافة دوران للكرة في حلقة الرسوم المتحركة
-function animate() {
-    requestAnimationFrame(animate);
-    cube.rotation.x += 0.01;
-    cube.rotation.y += 0.01;
-    sphere.rotation.x += 0.02; // دوران أسرع قليلاً
-    sphere.rotation.y += 0.02;
-    renderer.render(scene, camera);
-}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Web Example</title>
-    <style>
-        body { margin: 0; }
-        canvas { display: block; }
+        canvas { 
+            display: block; 
+            border: 2px solid #333; /* إطار حول المشهد */
+        }
+        #info { 
+            position: absolute; 
+            top: 10px; 
+            left: 10px; 
+            background: rgba(255, 255, 255, 0.8); 
+            padding: 10px; 
+            border-radius: 5px; 
+        }
+        button { 
+            margin: 10px; 
+            padding: 10px 20px; 
+            background-color: #4CAF50; 
+            color: white; 
+            border: none; 
+            cursor: pointer; 
+        }
+        button:hover { background-color: #45a049; }
     </style>
     
-    <!-- هنا تضع روابط المكتبات الخارجية (في <head>) -->
+    <!-- روابط المكتبات الخارجية -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
-    <!-- هنا تضع الكود الرئيسي (في <body> داخل <script>) -->
+    <!-- عناصر HTML لجعل الموقع يبدو عاديًا -->
+    <div id="info">
+        <h1>مرحبًا بك في موقعي الثلاثي الأبعاد!</h1>
+        <p>انقر على المكعب لتغيير لونه. استخدم الفأرة لتدوير الكاميرا.</p>
+        <button onclick="changeColor()">غير لون الكرة</button>
+        <button onclick="resetCamera()">أعد الكاميرا</button>
+    </div>
+
+    <!-- الكود الرئيسي للمشهد الثلاثي الأبعاد -->
     <script>
-        // إنشاء المشهد (الجزء الأساسي)
+        // إنشاء المشهد
         const scene = new THREE.Scene();
 
         // إنشاء الكاميرا
@@ -111,7 +62,7 @@ function animate() {
         renderer.setSize(window.innerWidth, window.innerHeight);
         document.body.appendChild(renderer.domElement);
 
-        // إضافة الإضاءة (بعد إنشاء المشهد)
+        // إضافة الإضاءة
         const light = new THREE.PointLight(0xffffff, 1, 100);
         light.position.set(10, 10, 10);
         scene.add(light);
@@ -119,29 +70,29 @@ function animate() {
         scene.add(ambientLight);
 
         // إنشاء المكعب (مع تغيير الأبعاد)
-        const geometry = new THREE.BoxGeometry(1, 2, 1); // عرض، ارتفاع، عمق
+        const geometry = new THREE.BoxGeometry(1, 2, 1);
         const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
         const cube = new THREE.Mesh(geometry, material);
         scene.add(cube);
 
-        // إضافة كرة (بعد إنشاء المكعب)
+        // إضافة كرة
         const sphereGeometry = new THREE.SphereGeometry(1, 32, 32);
         const sphereMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        sphere.position.x = 3; // وضعها بجانب المكعب
+        sphere.position.x = 3;
         scene.add(sphere);
 
-        // إضافة تحكمات الكاميرا (بعد إنشاء الكاميرا والمُعالج)
+        // إضافة تحكمات الكاميرا
         const controls = new THREE.OrbitControls(camera, renderer.domElement);
         controls.enableDamping = true;
         controls.dampingFactor = 0.05;
 
-        // إضافة تفاعل النقر (بعد إنشاء المكعب)
+        // إضافة تفاعل النقر على المكعب
         window.addEventListener('click', function() {
             cube.material.color.set(Math.random() * 0xffffff);
         });
 
-        // استخدام fetch لتحميل البيانات (بعد إنشاء المكعب)
+        // استخدام fetch لتحميل البيانات
         fetch('data.json')
             .then(response => response.json())
             .then(data => {
@@ -155,18 +106,26 @@ function animate() {
             })
             .catch(error => console.error('خطأ في تحميل البيانات:', error));
 
-        // حلقة الرسوم المتحركة (في النهاية)
+        // دوال إضافية للأزرار
+        function changeColor() {
+            sphere.material.color.set(Math.random() * 0xffffff);
+        }
+        function resetCamera() {
+            camera.position.set(0, 0, 5);
+            controls.reset();
+        }
+
+        // حلقة الرسوم المتحركة
         function animate() {
             requestAnimationFrame(animate);
             cube.rotation.x += 0.01;
             cube.rotation.y += 0.01;
             sphere.rotation.x += 0.02;
             sphere.rotation.y += 0.02;
-            controls.update(); // تحديث التحكمات
+            controls.update();
             renderer.render(scene, camera);
         }
         animate();
     </script>
 </body>
 </html>
-   
