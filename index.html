@@ -50,7 +50,12 @@ window.addEventListener('click', function() {
             renderer.render(scene, camera);
         }
         animate();
-    </script>
+    </script>// تحميل الخامة من الصورة المرفوعة
+const textureLoader = new THREE.TextureLoader();
+const texture = textureLoader.load('images/your-image.jpg'); // استبدل 'your-image.jpg' باسم الصورة الفعلي
+
+// تطبيق الخامة على المكعب
+cube.material = new THREE.MeshBasicMaterial({ map: texture });
 </body>
 </html>
 cd path/to/3DWebProject
