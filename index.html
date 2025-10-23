@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Web Example</title>
+    <style>
+        body { margin: 0; }
+        canvas { display: block; }
+    </style>
+</head>
+<body>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Create a scene
+        const scene = new THREE.Scene();
+// إضافة ضوء
+const light = new THREE.PointLight(0xffffff, 1, 100);
+light.position.set(10, 10, 10);
+scene.add(light);
+
+// إضافة ضوء محيطي
+const ambientLight = new THREE.AmbientLight(0x404040); // ضوء خافت
+scene.add(ambientLight);
+
+        // Create a camera
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        // Create a renderer
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        // Create a geometry and a material, then combine them into a mesh
+        const geometry = new THREE.BoxGeometry(1, 2, 1); // عرض، ارتفاع، عمق
+// تغيير لون المكعب عند النقر
+window.addEventListener('click', function() {
+    cube.material.color.set(Math.random() * 0xffffff); // تغيير اللون إلى لون عشوائي
+});
+        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const cube = new THREE.Mesh(geometry, material);
+        scene.add(cube);
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+            cube.rotation.x += 0.01; // Rotate around X axis
+            cube.rotation.y += 0.01; // Rotate around Y axis
+            renderer.render(scene, camera);
+        }
+        animate();
+    </script>
+</body>
+</html>
+cd path/to/3DWebProject
+   const textureLoader = new THREE.TextureLoader();
+   const texture = textureLoader.load('images/your-image.jpg'); // استبدل 'your-image.jpg' باسم الصورة الخاصة بك
+   const material = new THREE.MeshBasicMaterial({ map: texture });
+   const cube = new THREE.Mesh(geometry, material);
+python -m http.server
+   
